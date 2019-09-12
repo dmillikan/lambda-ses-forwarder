@@ -1,0 +1,54 @@
+
+service: lambda-ses-forwarder
+
+provider:
+  name: aws
+  runtime: python3.7
+  region: us-east-1
+  profile: ${file(../config.${self:provider.stage}.json):ses_forwarder.profile}
+
+ 
+functions:
+  process-event:
+    handler: handler.process_event
+    events:
+      - sns: 
+          arn: ${self:custom.snsTopicArn}
+          topicName: ses_forwarder_topic
+
+
+custom:
+  snsTopicArn:
+      Fn::Join:
+        - ':'
+        - - arn
+          - aws
+          - sns
+          - Ref: AWS::Region
+          - Ref: AWS::AccountId
+          - ses_forwarder_topic
+
+
+resources:
+  Resources:
+    snsTopic:
+      Type: AWS::SNS::Topic
+      Properties: 
+        TopicName: ses_forwarder_topic
+    sesRules:    
+      Type: AWS::SES::ReceiptRule
+      Properties:
+        RuleSetName: 'default-rule-set'
+        Rule:
+          Name: 'sns-rule'
+          Enabled: true
+          ScanEnabled: true
+          Recipients:
+            - 'cf-training@dmillikan.com'
+          Actions:
+            - SNSAction:
+                Encoding: UTF-8
+                TopicArn: ${self:custom.snsTopicArn}
+
+
+
