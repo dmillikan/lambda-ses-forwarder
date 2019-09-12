@@ -108,9 +108,12 @@ venv.bak/
 
 # .serverless
 serverless/
+.serverless/
 
 #node modules
 node_modules/
 # pem
 *.pem
 config.dev.json
+
+settings.json
