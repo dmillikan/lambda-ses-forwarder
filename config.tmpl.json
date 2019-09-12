@@ -1,5 +1,6 @@
 {
     "ses_forwarder": {
-        "profile": ""
+        "profile": "",
+        "recipient": ""
     }
 }

@@ -44,7 +44,7 @@ resources:
           Enabled: true
           ScanEnabled: true
           Recipients:
-            - 'cf-training@dmillikan.com'
+            - ${file(../config.${self:provider.stage}.json):ses_forwarder.recipient}
           Actions:
             - SNSAction:
                 Encoding: UTF-8

@@ -120,7 +120,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/lambda-ses-forwarder/dev/1568310013826-2019-09-12T17:40:13.826Z/lambda-ses-forwarder.zip"
+                "S3Key": "serverless/lambda-ses-forwarder/dev/1568315366796-2019-09-12T19:09:26.796Z/lambda-ses-forwarder.zip"
               },
               "FunctionName": "lambda-ses-forwarder-dev-process-event",
               "Handler": "handler.process_event",
@@ -139,14 +139,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "ProcessDasheventLambdaVersionQgpD0iqlwqkuO6c8T8idJ8m62r49woy9acsBz64dI": {
+          "ProcessDasheventLambdaVersiontMhxq5Gjo3Hcts4EGEJ11zDuZcygsg2q9AFIzzE": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ProcessDasheventLambdaFunction"
               },
-              "CodeSha256": "urIIo+MgLqV7D8PO75ehJJYP6aLTcPFGs3TEC32eebU="
+              "CodeSha256": "AfupFemNgQxnzhRi370UaQwYXcvV8z8+WW2Q2B6EyE8="
             }
           },
           "ProcessDasheventSnsSubscriptionSesforwardertopic": {
@@ -262,7 +262,7 @@
           "ProcessDasheventLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ProcessDasheventLambdaVersionQgpD0iqlwqkuO6c8T8idJ8m62r49woy9acsBz64dI"
+              "Ref": "ProcessDasheventLambdaVersiontMhxq5Gjo3Hcts4EGEJ11zDuZcygsg2q9AFIzzE"
             }
           }
         }
@@ -377,7 +377,7 @@
     "artifact": "/Users/danielmillikan/github/ses_forwarder/lambda-ses-forwarder/.serverless/lambda-ses-forwarder.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/lambda-ses-forwarder/dev/1568310013826-2019-09-12T17:40:13.826Z",
+    "artifactDirectoryName": "serverless/lambda-ses-forwarder/dev/1568315366796-2019-09-12T19:09:26.796Z",
     "artifact": "lambda-ses-forwarder.zip"
   }
 }
