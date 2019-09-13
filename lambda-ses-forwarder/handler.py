@@ -70,7 +70,6 @@ def process_event(event, context):
         else:
             print("Email sent! Message ID:"),
             print(response['MessageId'])
-            s3_object = s3_client.Object(bucket_name,object_key)
-            s3_object.delete()
-
+            s3_client.delete_object(Bucket=bucket_name,Key=object_key)
+             
     return
