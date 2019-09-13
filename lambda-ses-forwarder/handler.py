@@ -1,48 +1,76 @@
 import json
-import email
 import boto3
+from botocore.exceptions import ClientError
 import os
+import urllib
+import sys
+import uuid
+import io
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
+
 
 def process_event(event, context):
     """Forward the mail"""
-    ses_client = boto3.client('ses')
+    client = boto3.client('ses')
     emailAddress = os.environ['RECEPIENT_EMAIL']
+    s3_client = boto3.client('s3')
+    
     for record in event['Records']:
         # print(record['Sns']['Message'])
         msgJson = json.loads(record['Sns']['Message'])
-        subject = 'FW:' + msgJson['mail']['commonHeaders']['subject']
-        # print(msgJson)
+        bucket_name = msgJson['receipt']['action']['bucketName']
+        object_key = msgJson['receipt']['action']['objectKey']
 
-        # print("Mail Subject IS : {0}".format(subject))
+        # print('File {0} is in bucket {1}'.format(object_key,bucket_name))
         
-        msgContent = msgJson['content']
+        ATTACHMENT = '/tmp/{0}{1}.eml'.format(uuid.uuid4(), object_key)
+        s3_client.download_file(bucket_name, object_key, ATTACHMENT)
 
-        for msg in email.message_from_string(msgContent).get_payload():
-            if msg.get_content_type() == "text/plain":
-                st = str(msg.get_payload())
-            elif msg.get_content_type() == "text/html":
-                html = str(msg.get_payload())
-        
+        msg = MIMEMultipart('mixed')
+        # Add subject, from and to lines.
+        msg['Subject'] = 'Forwarded Message from cf-training@dmillikan.com'
+        msg['From'] = emailAddress
+        msg['To'] = emailAddress
+        BODY_TEXT = 'see attached file'
+        BODY_HTML = '<html><head></head><body>{0}</body></html>'.format(BODY_TEXT)
+        CHARSET = "utf-8"
+        msg_body = MIMEMultipart('alternative')
 
-        response = ses_client.send_email(
-            Source=emailAddress,
-            Destination={'ToAddresses': [emailAddress]},
-            Message={
-                'Subject': {
-                    'Data': subject,
-                    'Charset': 'UTF-8'
-                },
-                'Body': {
-                    'Html': {
-                        'Charset': 'UTF-8',
-                        'Data': html
-                    },
-                    'Text': {
-                        'Data': st,
-                        'Charset': 'UTF-8'
-                    }
+        textpart = MIMEText(BODY_TEXT.encode(CHARSET), 'plain', CHARSET)
+        htmlpart = MIMEText(BODY_HTML.encode(CHARSET), 'html', CHARSET)
+
+        msg_body.attach(textpart)
+        msg_body.attach(htmlpart)
+
+        att = MIMEApplication(open(ATTACHMENT, 'rb').read())
+
+        att.add_header('Content-Disposition', 'attachment',
+                       filename=os.path.basename(ATTACHMENT))
+
+
+        msg.attach(msg_body)
+
+        # Add the attachment to the parent container.
+        msg.attach(att)
+        #print(msg)
+        try:
+            #Provide the contents of the email.
+            response = client.send_raw_email(
+                Source=emailAddress,
+                Destinations=[emailAddress],
+                RawMessage={
+                    'Data': msg.as_string()
                 }
-            }
-        )
-        print(response)
+            )
+        # Display an error if something goes wrong.
+        except ClientError as e:
+            print(e.response['Error']['Message'])
+        else:
+            print("Email sent! Message ID:"),
+            print(response['MessageId'])
+            s3_object = s3_client.Object(bucket_name,object_key)
+            s3_object.delete()
+
     return
